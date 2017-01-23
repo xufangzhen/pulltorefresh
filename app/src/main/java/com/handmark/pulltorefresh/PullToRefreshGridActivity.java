@@ -36,106 +36,107 @@ import com.handmark.pulltorefresh.library.PullToRefreshGridView;
 
 public final class PullToRefreshGridActivity extends Activity {
 
-	static final int MENU_SET_MODE = 0;
+    static final int MENU_SET_MODE = 0;
 
-	private LinkedList<String> mListItems;
-	private PullToRefreshGridView mPullRefreshGridView;
-	private GridView mGridView;
-	private ArrayAdapter<String> mAdapter;
+    private LinkedList<String> mListItems;
+    private PullToRefreshGridView mPullRefreshGridView;
+    private GridView mGridView;
+    private ArrayAdapter<String> mAdapter;
 
-	/** Called when the activity is first created. */
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_ptr_grid);
+    /** Called when the activity is first created. */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_ptr_grid);
 
-		mPullRefreshGridView = (PullToRefreshGridView) findViewById(R.id.pull_refresh_grid);
-		mGridView = mPullRefreshGridView.getRefreshableView();
+        mPullRefreshGridView = (PullToRefreshGridView) findViewById(R.id.pull_refresh_grid);
+        mGridView = mPullRefreshGridView.getRefreshableView();
 
-		// Set a listener to be invoked when the list should be refreshed.
-		mPullRefreshGridView.setOnRefreshListener(new OnRefreshListener2<GridView>() {
+        // Set a listener to be invoked when the list should be refreshed.
+        mPullRefreshGridView.setOnRefreshListener(new OnRefreshListener2<GridView>() {
 
-			@Override
-			public void onPullDownToRefresh(PullToRefreshBase<GridView> refreshView) {
-				Toast.makeText(PullToRefreshGridActivity.this, "Pull Down!", Toast.LENGTH_SHORT).show();
-				new GetDataTask().execute();
-			}
+            @Override
+            public void onPullDownToRefresh(PullToRefreshBase<GridView> refreshView) {
+                Toast.makeText(PullToRefreshGridActivity.this, "Pull Down!", Toast.LENGTH_SHORT).show();
+                new GetDataTask().execute();
+            }
 
-			@Override
-			public void onPullUpToRefresh(PullToRefreshBase<GridView> refreshView) {
-				Toast.makeText(PullToRefreshGridActivity.this, "Pull Up!", Toast.LENGTH_SHORT).show();
-				new GetDataTask().execute();
-			}
+            @Override
+            public void onPullUpToRefresh(PullToRefreshBase<GridView> refreshView) {
+                Toast.makeText(PullToRefreshGridActivity.this, "Pull Up!", Toast.LENGTH_SHORT).show();
+                new GetDataTask().execute();
+            }
+        });
 
-		});
+        mListItems = new LinkedList<String>();
 
-		mListItems = new LinkedList<String>();
+        TextView tv = new TextView(this);
+        tv.setGravity(Gravity.CENTER);
+        tv.setText("Empty View, Pull Down/Up to Add Items");
+        mPullRefreshGridView.setEmptyView(tv);
 
-		TextView tv = new TextView(this);
-		tv.setGravity(Gravity.CENTER);
-		tv.setText("Empty View, Pull Down/Up to Add Items");
-		mPullRefreshGridView.setEmptyView(tv);
+        mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mListItems);
+        mGridView.setAdapter(mAdapter);
+    }
 
-		mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mListItems);
-		mGridView.setAdapter(mAdapter);
-	}
+    private class GetDataTask extends AsyncTask<Void, Void, String[]> {
 
-	private class GetDataTask extends AsyncTask<Void, Void, String[]> {
+        @Override
+        protected String[] doInBackground(Void... params) {
+            // Simulates a background job.
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+            }
+            return mStrings;
+        }
 
-		@Override
-		protected String[] doInBackground(Void... params) {
-			// Simulates a background job.
-			try {
-				Thread.sleep(2000);
-			} catch (InterruptedException e) {
-			}
-			return mStrings;
-		}
+        @Override
+        protected void onPostExecute(String[] result) {
+            mListItems.addFirst("Added after refresh...");
+            mListItems.addAll(Arrays.asList(result));
+            mAdapter.notifyDataSetChanged();
 
-		@Override
-		protected void onPostExecute(String[] result) {
-			mListItems.addFirst("Added after refresh...");
-			mListItems.addAll(Arrays.asList(result));
-			mAdapter.notifyDataSetChanged();
+            // Call onRefreshComplete when the list has been refreshed.
+            mPullRefreshGridView.onRefreshComplete();
 
-			// Call onRefreshComplete when the list has been refreshed.
-			mPullRefreshGridView.onRefreshComplete();
+            super.onPostExecute(result);
+        }
+    }
 
-			super.onPostExecute(result);
-		}
-	}
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(0, MENU_SET_MODE, 0,
+                mPullRefreshGridView.getMode() == Mode.BOTH ? "Change to MODE_PULL_DOWN"
+                        : "Change to MODE_PULL_BOTH");
+        return super.onCreateOptionsMenu(menu);
+    }
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(0, MENU_SET_MODE, 0,
-				mPullRefreshGridView.getMode() == Mode.BOTH ? "Change to MODE_PULL_DOWN"
-						: "Change to MODE_PULL_BOTH");
-		return super.onCreateOptionsMenu(menu);
-	}
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem setModeItem = menu.findItem(MENU_SET_MODE);
+        setModeItem.setTitle(mPullRefreshGridView.getMode() == Mode.BOTH ? "Change to MODE_PULL_FROM_START"
+                : "Change to MODE_PULL_BOTH");
 
-	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		MenuItem setModeItem = menu.findItem(MENU_SET_MODE);
-		setModeItem.setTitle(mPullRefreshGridView.getMode() == Mode.BOTH ? "Change to MODE_PULL_FROM_START"
-				: "Change to MODE_PULL_BOTH");
+        return super.onPrepareOptionsMenu(menu);
+    }
 
-		return super.onPrepareOptionsMenu(menu);
-	}
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case MENU_SET_MODE:
+                mPullRefreshGridView
+                        .setMode(mPullRefreshGridView.getMode() == Mode.BOTH ? Mode.PULL_FROM_START
+                                : Mode.BOTH);
+                break;
+        }
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case MENU_SET_MODE:
-				mPullRefreshGridView
-						.setMode(mPullRefreshGridView.getMode() == Mode.BOTH ? Mode.PULL_FROM_START
-								: Mode.BOTH);
-				break;
-		}
+        return super.onOptionsItemSelected(item);
+    }
 
-		return super.onOptionsItemSelected(item);
-	}
-
-	private String[] mStrings = { "Abbaye de Belloc", "Abbaye du Mont des Cats", "Abertam", "Abondance", "Ackawi",
-			"Acorn", "Adelost", "Affidelice au Chablis", "Afuega'l Pitu", "Airag", "Airedale", "Aisy Cendre",
-			"Allgauer Emmentaler" };
+    private String[] mStrings = {
+            "Abbaye de Belloc", "Abbaye du Mont des Cats", "Abertam", "Abondance", "Ackawi",
+            "Acorn", "Adelost", "Affidelice au Chablis", "Afuega'l Pitu", "Airag", "Airedale", "Aisy Cendre",
+            "Allgauer Emmentaler"
+    };
 }

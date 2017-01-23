@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    >
 
     <!-- The PullToRefreshExpandableListView replaces a standard ExpandableListView widget. -->
 
@@ -13,6 +14,7 @@
         android:layout_height="fill_parent"
         ptr:ptrHeaderBackground="@android:color/darker_gray"
         ptr:ptrHeaderTextColor="@android:color/white"
-        ptr:ptrMode="pullUpFromBottom" />
+        ptr:ptrMode="pullUpFromBottom"
+        />
 
 </LinearLayout>

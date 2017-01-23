@@ -24,30 +24,28 @@ import com.handmark.pulltorefresh.library.PullToRefreshWebView;
 
 public final class PullToRefreshWebViewActivity extends Activity {
 
-	PullToRefreshWebView mPullRefreshWebView;
-	WebView mWebView;
+    PullToRefreshWebView mPullRefreshWebView;
+    WebView mWebView;
 
-	/** Called when the activity is first created. */
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_ptr_webview);
+    /** Called when the activity is first created. */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_ptr_webview);
 
-		mPullRefreshWebView = (PullToRefreshWebView) findViewById(R.id.pull_refresh_webview);
-		mWebView = mPullRefreshWebView.getRefreshableView();
+        mPullRefreshWebView = (PullToRefreshWebView) findViewById(R.id.pull_refresh_webview);
+        mWebView = mPullRefreshWebView.getRefreshableView();
 
-		mWebView.getSettings().setJavaScriptEnabled(true);
-		mWebView.setWebViewClient(new SampleWebViewClient());
-		mWebView.loadUrl("http://www.google.com");
+        mWebView.getSettings().setJavaScriptEnabled(true);
+        mWebView.setWebViewClient(new SampleWebViewClient());
+        mWebView.loadUrl("http://www.google.com");
+    }
 
-	}
-
-	private static class SampleWebViewClient extends WebViewClient {
-		@Override
-		public boolean shouldOverrideUrlLoading(WebView view, String url) {
-			view.loadUrl(url);
-			return true;
-		}
-	}
-
+    private static class SampleWebViewClient extends WebViewClient {
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            view.loadUrl(url);
+            return true;
+        }
+    }
 }
